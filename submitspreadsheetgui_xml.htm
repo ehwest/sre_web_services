@@ -1,0 +1,132 @@
+<?
+// AT&T Public Source License Version 1.1 (6/2013)
+
+// The Initial Developer of the Original Code is AT&T the Original Code is governed by the AT&T Public Source License.
+// Copyright AT&T 2013. All Rights Reserved.
+
+// This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the 
+// AT&T Public Source License Version 1.1 (the 'License'). 
+
+// You may not use this file except in compliance with the License. Please obtain a copy of the License at 
+// http://www.att.developer.com/ and read it before using this file.
+
+// The Original Code and all software distributed under the License are distributed on an 'AS IS' basis, 
+// WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES, 
+// INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
+// QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the 
+// specific language governing rights and limitations under the License.
+
+        $dbhostname = "localhost";
+        $dblogin= "root";
+        $dbpassword= "";
+        $dbname="sre";
+
+        error_reporting(E_PARSE);
+
+        if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
+                {
+                print("Failed to connect to db server.");
+                exit();
+                }
+        if(!mysql_select_db($dbname,$dbLink))
+                {
+                print("Failed to select database.");
+                exit();
+                }
+
+	$cookiename="sre_analysis" ;
+	$ipaddress = $_SERVER["REMOTE_ADDR"];
+	$projectkey= $_GET["projectkey"];
+	$userid= $_GET["userid"];
+
+//Log the useage
+        $q = "INSERT into userlog set ";
+        $q .= "pageurl='"  . "submitspreadsheetgui_xml.htm" . "', ";
+        $q .= "userid='"  . $userid . "', ";
+        $q .= "tod='"  . time() . "', ";
+        $q .= "ipaddress='"  . $_SERVER["REMOTE_ADDR"] . "'; ";
+        //print $q;
+        mysql_query($q,$dbLink);
+
+
+	$message = base64_decode($_GET['m']);
+
+?>
+<link rel="stylesheet" href="ew.css" type="text/css" />
+<body >
+<?
+
+print '<form enctype="multipart/form-data" action="submitspreadsheet_xml.htm" method="POST">';
+	print "<table width=90% align=center>";
+	print "<tr><td><br>&nbsp;</td></tr>";
+	print "<tr class=tablerowtext><td>";
+	print "</td></tr>";
+
+	print "<tr class=tablerowtext><td>";
+	print $message;
+	print "</td></tr>";
+   	
+	print "<tr><td><br>&nbsp;</td></tr>";
+
+	if($projectkey>0){
+	print "<tr class=tablerowtext><td>";
+	print "View details of <a href=showprojects.htm?projectkey=$projectkey>this project.</a>" . "( ID= <b>$projectkey</b>)" ;
+	print "</td></tr>";
+	}
+
+	print "<tr class=tablerowtext><td>";
+	print "View list of all of my previously <a href=showprojects.htm?s='show_all' >submitted projects</a>" . " (for <b>userid " . $userid . "</b>)" ;
+	print "</td></tr>";
+   	
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+	print "<br><br><b>Step by Step Instructions</b><br><br>";
+	print "</td></tr>";
+
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+
+	print "1.  Download the <font color=red><b>NEW </b></font><a href='downloadtemplate.htm' target=_new>defined MS Excel</a> template file for your analysis input.";
+	print "</td></tr>";
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+
+	print "2.  Your License Key: ";
+	print '<input type="textbox" size=80 name="licensekey" value="' . $userid . '" />';
+	print "</td></tr>";
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+
+	print "3.  Update the MS Excel file using YOUR data. ";
+	print "</td></tr>";
+	print "<tr><td align=left class=tablerowtext colspan=8>";
+	print '<input type="hidden" name="MAX_FILE_SIZE" value="100000" />';
+	print '<input type="hidden" name="hellostring" value="' . $hellostring . '" />';
+	print '<input type="hidden" name="userid" value="' . $userid . '" />';
+	print '<input type="hidden" name="gui" value="submitspreadsheetgui_xml.htm" />';
+	print '4.  Upload your filled-in MS Excel file: <input size=90 name="uploadedfile" type="file" class="inputtextbox"/><br />';
+	print "</td>";
+
+	print "<td align=left class=tablerowtext valign=bottom colspan=4 >";
+	print '<input type="submit" value="Upload" class="inputtextbox"/>';
+	print "</td></tr>";
+
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+	print "5.  Click on '<b>Compute Model</b>' below to fire off your modelling process.";
+	print "</td></tr>";
+
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+	print "6.  <b>Wait!</b> usually a minute or two, somtimes an hour, depending on the dataset. ";
+	print "</td></tr>";
+
+	print "<tr class=tablerowtext>";
+	print "<td colspan=8 >";
+	print "7.  Download your PDF report.";
+	print "</td></tr>";
+
+	print "</table>";
+	print '</form>';
+
+?>

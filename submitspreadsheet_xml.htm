@@ -1,0 +1,263 @@
+<?
+// AT&T Public Source License Version 1.1 (6/2013)
+// The Initial Developer of the Original Code is AT&T the Original Code is governed by the AT&T Public Source License. 
+// Copyright AT&T 2013. All Rights Reserved.
+
+// This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the
+// AT&T Public Source License Version 1.1 (the 'License').
+
+// You may not use this file except in compliance with the License. Please obtain a copy of the License at
+// http://www.att.developer.com/ and read it before using this file.
+
+// The Original Code and all software distributed under the License are distributed on an 'AS IS' basis,
+// WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+// INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+// QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the
+// specific language governing rights and limitations under the License.
+//
+//This function is the <form> target of submitspreadsheetgui.htm
+//This function accepts a spreadhseet as a POSTING and creates a json
+//object that is submitted to submitproject_json.htm
+
+
+        error_reporting(E_PARSE);
+
+// submitspreadsheet_xml.php
+	//This thing accepts the parsed spreadsheet xml and inserts a project
+
+        $ipaddress = $_SERVER["REMOTE_ADDR"];
+	$userid= $_REQUEST['userid'];
+	$licensekey = $userid;
+
+	//print "in submitspreadsheet_xml.htm ipaddress=$ipaddress; licensekey=$licensekey";
+//Get the spreadsheet content and meta data
+
+	$filecontent = file_get_contents($_FILES['uploadedfile']['tmp_name']);
+	$filesize = filesize($_FILES['uploadedfile']['tmp_name']);
+	$origfilename  = $_FILES['uploadedfile']['name'];
+
+	$debug=1;
+	if($debug==1){
+	   //print "origfilename=$origfilename";
+	  //fwrite($f1,"\nupload size=" . $filesize  . "\n");
+	  //fwrite($f1,"\nupload original filename =" . $origfilename . "\n");
+	  //the actual file contents is a binary-encoded spreadsheet
+	  //fwrite($f1,"\nupload original content=" . $filecontent. "\n");
+	}
+
+//Convert the spreadhseet into a matrix of data
+	//print "reading xls row data now";
+	include("xlsxdecoder.php");
+	$xlsx = new SimpleXLSX($_FILES['uploadedfile']['tmp_name']);
+	$ssrows = $xlsx->rows();
+
+	$debug=0;
+	if( $debug==1){
+		//fwrite($f1, print_r( $ssrows, true) );
+		//print "<PRE>";
+		//print_r($ssrows);
+		//print "</PRE>";
+	}
+
+
+//First we capture some data in specific cells in the standardized template perspective
+
+		$dayonedate = $ssrows[9][4];
+		$dateparts = explode("/",$dayonedate);
+		if(count($dateparts)>=3){
+			//print "$dayonedate is slash date text";
+                	$teststartdate = string2epoch($dayonedate);
+			}else{
+			//print "$dayonedate is MS Excel date";
+                	$teststartdate = xldate2epoch($dayonedate);
+			}
+        //if( $debug==1){
+            //    fwrite($f1, "\nteststartdate=$teststartdate = " . date("n/j/Y H:i",$teststartdate) . "\n" );
+             //   fwrite($f1, print_r( $ssrows, true) );
+        //}
+
+	//$xmlfragment1 = "<sreproject>\n";
+	$xmlfragment1 = "";
+
+	$maxeffort = 0;
+//Now we peel off the time series data out of the spreadsheet.
+		unset($allrecords);
+		unset($totaldefects);
+		unset($maxeffort);
+		unset($lastindex);
+	     $xmlfragment1 .= "<inputimeseries>\n";
+             foreach($ssrows as $key=>$onerow){
+		if( $key>0 ){ //basically ignore the first row in the spreadsheet
+			//fwrite($f1,$key . "\n");
+			//fwrite($f1,print_r($onerow,true). "\n");
+			unset($effort);
+			unset($defectcount);
+                      	$effort      = trim($onerow[0]);
+                      	$defectcount = round(trim($onerow[1]));
+			$totaldefects += $defectcount;
+			unset($record);
+                        if($effort > 0  ){
+				  //fwrite($f1,$effort. "\n");
+                                  $record["effort"]  = $effort;
+				  if($maxeffort < $effort) $maxeffort = $effort;
+				  if($defectcount !=""){
+                                  	$record['defectcount'] = $defectcount;
+					}else{
+					$record['defectcount'] = 0;
+					}
+                                  $timeseries[] = $record;
+				  $xmlfragment1 .= "<datapoint>\n";
+				  $xmlfragment1 .= "<effort>" . $effort . "</effort>\n";
+				  $xmlfragment1 .= "<defectcount>" . $defectcount . "</defectcount>\n";
+				  $xmlfragment1 .= "</datapoint>\n";
+				  $lastindex = $key;
+				  if($maxeffort < $effort) $maxeffort = $effort;
+                          }//effort should be nonzero and increasing
+                  }//for all rows but the first one
+                }//foreach row beyond the first row
+		$xmlfragment1 .= "</inputimeseries>\n";
+
+        if( $debug==1){
+		//fwrite($f1, "\nteststartdate=$teststartdate = " . date("n/j/Y H:i",$teststartdate) . "\n" );
+                //fwrite($f1, print_r( $timeseries, true) );
+        }
+
+
+//Clean up the data and get some summary data out of it
+	//print "<PRE>";
+	//print_r($ssdata);
+	//print "</PRE>";
+
+	$metadata['inputimeseries'] = $timeseries;
+	$metadata['maxeffort']  = $maxeffort;
+	$metadata['datapoints'] = $lastindex;
+	$metadata['totaldefects'] = $totaldefects;
+
+	$metadata['userid'] = $userid;
+	$metadata['tod'] = time();
+	$metadata['modified'] = time();
+
+	$xmlfragment2 = "";
+	$metadata['status'] = "new project";
+	$xmlfragment2 .= "<status>" . $metadata['status'] . "</status>\n" ;
+
+	$metadata['teststartdate'] = $teststartdate;
+	$xmlfragment2 .= "<teststartdate>" . $metadata['teststartdate'] . "</teststartdate>\n" ;
+	$xmlfragment2 .= "<userid>" . $metadata['userid'] . "</userid>\n" ;
+
+	$metadata['filename'] = addslashes(trim($_FILES['uploadedfile']['name']));
+	$xmlfragment2 .= "<filename>" . $metadata['filename'] . "</filename>\n" ;
+	$metadata['projectname'] = trim($ssrows[16][4]);
+	$xmlfragment2 .= "<projectname>" . $metadata['projectname'] . "</projectname>\n" ;
+
+        $metadata['sev1'] = $ssrows[11][5];
+        $metadata['sev2'] = $ssrows[12][5];
+        $metadata['sev3'] = $ssrows[13][5];
+        $metadata['sev4'] = $ssrows[14][5];
+        $metadata['sev5'] = $ssrows[15][5];
+
+	$xmlfragment2 .= "<sev1>" . $metadata['sev1'] . "</sev1>\n" ;
+	$xmlfragment2 .= "<sev2>" . $metadata['sev2'] . "</sev2>\n" ;
+	$xmlfragment2 .= "<sev3>" . $metadata['sev3'] . "</sev3>\n" ;
+	$xmlfragment2 .= "<sev4>" . $metadata['sev3'] . "</sev4>\n" ;
+	$xmlfragment2 .= "<sev5>" . $metadata['sev5'] . "</sev5>\n" ;
+
+	//$xmlfragment1 .= "</sreproject>";
+
+	//print "<PRE>";
+	//print_r($metadata);
+	//print "</PRE>";
+
+
+	//require_once 'json.php';
+	//$json = json_encode($metadata);
+	//print $xmlfragment1;
+
+	$debug = 0;
+	if($debug==1){
+		fwrite($f1,"Starting CURL with this json data structure.");
+		fwrite($f1, $xmlfragment1 );
+		fwrite($f1,"Done with submitspreadsheet.htm");
+	}
+
+        //print "curl init starting ";
+        $ch = curl_init();
+        //print_r($ch);
+        curl_setopt($ch,CURLOPT_POST, 1);
+
+	$postfields  = 'projectdata='. $xmlfragment2 . $xmlfragment1;
+	$postfields .= '&encoding=xml';
+	$postfields .= '&licensekey='. $licensekey;
+
+        curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/CreateProject.htm" );
+	curl_setopt($ch,CURLOPT_POSTFIELDS,$postfields);
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+	//print "postfields=$postfields";
+	//print "xml=$xmlfragment2 . $xmlfragment1";
+
+        //print " curl opts set";
+        // $output contains the output string
+        $response = curl_exec($ch);
+	//print "curl done";
+        //print $response;
+
+	 $ix = trim($response);
+
+	//$message = "Your userid=$userid";
+        $errormessage = curl_error($ch);
+
+	if($ix>0){
+	  $message = "You have successfull inserted a new project.  Project Id= <b>" . $ix . "</b>";
+	}else{
+	  $message = "You have NOT successfull ineserted a new project.";
+	}
+
+	//print $message;
+        // close curl resource to free up system resources
+        curl_close($ch);
+
+	//exit();
+	$m = base64_encode($message . " " . $errormessage);
+	header("Location: " . "showprojects.htm" . "?m=$m");
+	//fwrite($f1,"redirection complete back to $gui");
+	exit();
+
+
+function xldate2epoch($t){
+        //$t = 20345;
+	$epoch = ($t - 25569) * 86400;
+	return($epoch);
+
+        $years = $t / 365.2422;
+        $yy = floor($years);
+        $yyyy = $yy + 1900;
+
+        $fraction = $years - $yy;
+        $mm = 1+ floor($fraction * 12);
+
+	if($yyyy<=2010){
+          $dd = 1+ floor( 30 * (($fraction * 12) - $mm + 1)) - 1;
+	}else{
+          $dd = 1+ floor( 30 * (($fraction * 12) - $mm + 1)) - 2;
+	}
+
+        //print "yyyy=$yyyy<br>";
+        //print "mm=$mm<br>";
+        //print "dd=$dd<br>";
+
+        $t9 = mktime(0,0,0,$mm,$dd,$yyyy);
+        //print date("n/j/Y H:i",$t9);
+        return($t9);
+}
+
+function string2epoch($s){
+	$x = explode("/",$s);
+	$mm = $x[0];
+	$dd = $x[1];
+	$yyyy = $x[2];
+	$t = mktime(0,0,0,$mm,$dd,$yyyy);
+	return($t);
+}
+?>

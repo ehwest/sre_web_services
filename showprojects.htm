@@ -1,0 +1,494 @@
+<?
+// AT&T Public Source License Version 1.1 (6/2013)
+
+// The Initial Developer of the Original Code is AT&T the Original Code is governed by the AT&T Public Source License.
+// Copyright AT&T 2013. All Rights Reserved.
+
+// This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the 
+// AT&T Public Source License Version 1.1 (the 'License'). 
+
+// You may not use this file except in compliance with the License. Please obtain a copy of the License at 
+// http://www.att.developer.com/ and read it before using this file.
+
+// The Original Code and all software distributed under the License are distributed on an 'AS IS' basis, 
+// WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES, 
+// INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
+// QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the 
+// specific language governing rights and limitations under the License.
+
+//set updatabase and log usage
+
+	require_once("setup.php");
+
+//Establish a unique cooke for the user's IP address
+        $cookiename="sre_analysis" ;
+        $ipaddress = $_SERVER["REMOTE_ADDR"];
+
+        if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
+                $nowtime = time();
+                $licensekey = $nowtime . "_id_" . $ipaddress;
+                $expiration = $nowtime + (3600*24*365); //365 days
+                setcookie ( $cookiename, $licensekey, $expiration);
+                //print "New Cookie set: $uniqueid <br>";
+                $firstime = 1;
+        }else{
+                $licensekey = $_COOKIE[$cookiename];
+                $firstime = 0;
+                //print "Cookie already set:  $uniqueid<br>";
+        }
+
+
+
+?>
+<meta http-equiv="refresh" content="400"/>
+<link rel="stylesheet" href="ew.css" type="text/css" />
+<head>
+<title>AT&T Software Readiness Estimation (SRE) Workbench</title>
+
+</head>
+
+<body >
+
+<table width=100%>
+<tr><td align=right>
+<img src=rethink_possible_logo.jpg>
+</td></tr>
+<tr><td class=headertitle align="center">
+Welcome to the Software Readiness Estimation (SRE) Analysis Management Tool
+</td></tr>
+<?
+	if($_REQUEST["m"] !=""){
+	     $message = base64_decode($_REQUEST["m"]);
+ 	     print "<tr class=tablerowtext><td colspan=20 align=center><br><br><b><i><font color=red>" . $message . "</font></i></b><br></td></tr>";
+	     }
+
+?>
+</table>
+<?
+
+//Establish a unique userid, if one does not already exist, for the user's IP address
+//Save the user id in the user's browser.
+        $cookiename="sre_analysis" ;
+        $ipaddress = $_SERVER["REMOTE_ADDR"];
+
+        if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
+		//userid does not exist in browser, create one
+                $nowtime = time();
+                $uniqueid = $nowtime . "_id_" . $ipaddress;
+                $expiration = $nowtime + (3600*24*365); //365 days
+                setcookie ( $cookiename, $uniqueid, $expiration);
+                //print "New Cookie set: $uniqueid <br>";
+                $firstime = 1;
+		$userid = $uniqueid;
+		$licensekey = $uniqueid;
+
+		$q = "INSERT into users set ";
+		$q .= " userid='" . $uniqueid . "', ";
+		$q .= " licensekey='" . $uniqueid . "', ";
+		$q .= " modified='" . time() . "'; ";
+		mysql_query($q,$dbLink);
+
+        }else{
+		//userid already exists, just use it
+                $uniqueid= $_COOKIE[$cookiename];
+                $firstime = 0;
+                //print "Cookie already set:  $uniqueid<br>";
+		$userid = $uniqueid;
+		$licensekey = $uniqueid;
+        }
+
+
+//Log the useage
+        $q = "INSERT into userlog set ";
+        $q .= "pageurl='"  . "showprojects.htm" . "', ";
+        $q .= "userid='"  . $userid . "', ";
+        $q .= "licensekey='"  . $licensekey . "', ";
+        $q .= "tod='"  . time() . "', ";
+        $q .= "ipaddress='"  . $_SERVER["REMOTE_ADDR"] . "'; ";
+        //print $q;
+        mysql_query($q,$dbLink);
+
+
+
+print '<form enctype="multipart/form-data" action="phase1.php" method="POST">';
+	print "<table width=90% align=center>";
+
+   	
+        $s = $_GET["s"];
+        $projectkey   = $_GET["projectkey"];
+        //$licensekey = $_GET["licensekey"];
+
+	//$licensekey = "1397507766_LicenseKey_ew8463";
+	$projectlist = getprojectinfo($projectkey,$licensekey);
+
+	//print_r($projectlist);
+
+	print "<tr class=tablerowtext><td colspan=8>";
+	if($firstime==0) {
+           print "<br>Your automatically registered userid is <b>" . $uniqueid . "</b> " ;
+           print "  " . $logouturl . " ";
+        }else{
+          print "<br>A new userid has been created for you and it is <b> $uniqueid </b>";
+        }
+        print "</td></tr>";
+
+	print "<tr class=tablerowtext><td colspan=8>";
+	print "Click here to ";
+	print " <a href=submitspreadsheetgui_xml.htm?userid=$uniqueid >submit using API</a>";
+	print "</td></tr>";
+	print "<br><br></td></tr>";
+
+	print "<tr class=tablecolumnheaders >";
+	print "<td colspan=3 align=center >&nbsp;</td>";
+	print "<td colspan=5 align=center >&nbsp;</td>";
+	print "<td colspan=5>&nbsp;</td>";
+	print "<td colspan=7 align=center>Results - Most Likely Estimators</td>";;
+
+	print "<tr class=tablecolumnheaders >";
+	print "<td colspan=3 align=center >File Input Activity</td>";
+	print "<td colspan=5 align=center >Parsed Upload Information</td>";
+	print "<td colspan=5 align=center >Current State</td>";
+	print "<td colspan=3 align=center>IM</td>";;
+	print "<td colspan=3 align=center>NIM</td>";;
+	print "<td align=center>Charts</td>";;
+
+	$nowtime = time();
+	print "<tr class=tablecolumnheaders >";
+	print "<td>Project ID</td>";
+	print "<td>Uploaded</td>";
+	print "<td align=center >Local File Name (click to see original time-series data)</td>";
+	print "<td align=center >Project Name</td>";
+	print "<td align=center >Reported Test Start Date</td>";
+	print "<td align=center >Number of Input Data Points</td>";
+	print "<td align=center >Effort Expended so Far </td>";
+	print "<td align=center >Total Defects Reported</td>";
+	print "<td align=center >Status</td>";
+	print "<td align=center >Results</td>";
+	print "<td align=center >Analysis Start Time</td>";
+	print "<td align=center >Analysis End Time</td>";
+	print "<td align=center >Analysis Time</td>";
+	print "<td align=center >DI-IM (fitness to IM model)</td>";;
+	print "<td align=center >IM Remaining Test Effort to Release Point</td>";;
+	print "<td align=center >IM Remaining Total Test Defects </td>";;
+	print "<td align=center >DI-NIM (fitness to NIM model</td>";;
+	print "<td align=center >NIM Remaining Test Effort to Release Point</td>";;
+	print "<td align=center >NIM Remaining Total Test Defects</td>";;
+	print "<td>Charts & Graphs</td>";;
+
+	$nowtime = time();
+	$bg = "FFFFFF";
+
+	//print $q;
+	unset($oneproject);
+	if(is_array($projectlist)){
+	foreach($projectlist as $oneproject){
+
+		if($bg=="FFFFFF"){
+			$bg="e9e9e9";
+			}else{
+			$bg="FFFFFF";
+			}
+
+		$bggreen  = "#BCF5A9";
+		$bgyellow = "#F2F5A9";
+		$bgred    = "#FF9191";
+
+	
+		switch($oneproject['diim']){
+			case 	"":
+				$bgcolor_diim = $bg;
+				break;
+			case 	0:
+				$bgcolor_diim = $bg;
+				break;
+			case(trim($oneproject['diim']) =="" || $oneproject['diim']==0 ):
+				$bgcolor_diim = $bg;
+				break;
+			case($oneproject['diim'] <3):
+				$bgcolor_diim = $bgred;
+				break;
+			case($oneproject['diim'] >3):
+				$bgcolor_diim = $bggreen;
+				break;
+			}
+
+		switch($oneproject['dinim']){
+			case 	"":
+				$bgcolor_dinim = $bg;
+				break;
+			case 	0:
+				$bgcolor_dinim = $bg;
+				break;
+			case($oneproject['dinim'] <3):
+				$bgcolor_dinim = $bgred;
+				break;
+			case($oneproject['dinim'] >3):
+				$bgcolor_dinim = $bggreen;
+				break;
+			}
+
+		switch($oneproject['imdefectsleft']){
+			case 	"":
+				$bgcolor_imdefectsleft = $bg;
+				break;
+			case 	0:
+				$bgcolor_imdefectsleft = $bg;
+				break;
+			case($oneproject['dinim'] <3):
+				$bgcolor_imdefectsleft = $bg;
+				break;
+			case($oneproject['imdefectsleft'] > 10):
+				$bgcolor_imdefectsleft = $bgred;
+				break;
+			case($oneproject['imdefectsleft'] <= 10):
+				$bgcolor_imdefectsleft= $bggreen;
+				break;
+			}
+
+		switch($oneproject['nimdefectsleft']){
+			case 	"":
+				$bgcolor_nimdefectsleft = $bg;
+				break;
+			case 	0:
+				$bgcolor_nimdefectsleft = $bg;
+				break;
+			case($oneproject['nimdefectsleft'] >10):
+				$bgcolor_nimdefectsleft = $bgred;
+				break;
+			case($oneproject['nimdefectsleft'] <= 103):
+				$bgcolor_nimdefectsleft= $bggreen;
+				break;
+			}
+
+		switch($oneproject['results']){
+			case "" :
+				$bgcolor_results = $bg;
+				break;
+			case  "poor model fit" :
+				$bgcolor_results = $bgred;
+				break;
+			case  "IM fit only" :
+				$bgcolor_results = $bgyellow;
+				break;
+			case  "NIM fit only" :
+				$bgcolor_results = $bgyellow;
+				break;
+			case  "IM and NIM fit" :
+				$bgcolor_results = $bggreen;
+				break;
+			}
+			//$bgcolor_results = $bggreen;
+
+		//project ID
+		print "<tr class=tablerowtext bgcolor=" . $bg . "  align=right >";
+		print "<td>";
+		print "<a href=showprojects.htm?projectkey=" . $oneproject['projectkey'] . " >" . $oneproject['projectkey'] . "</a>";
+                print '&nbsp;&nbsp;&nbsp;<a href=deleterecord.php?projectkey=' . $oneproject['projectkey'] . '>delete</a>';
+		print "</td>";
+
+		//uploaded time
+		print "<td >";
+		print date("n/j/Y H:i A",$oneproject['modified']);
+		print "</td>";
+
+		//input filename and link to a viewer for the data
+                print "<td>";
+                print "<a href=viewinputdata.php?projectkey=" . $oneproject['projectkey'] . " >" . stripslashes($oneproject['filename']) . "</a>";
+                print "</td>";
+
+		//project name
+		print "<td >";
+		print stripslashes($oneproject['filename']);
+		print "</td>";
+
+		print "<td>";
+		if($oneproject['teststartdate']>10 ){
+			$string = date("n/j/Y",$oneproject['teststartdate']-(4*3600));
+			print $string;
+			}else{
+			print "--";
+			}
+		print "</td>";
+
+		print "<td>";
+		if($oneproject['datapoints'] >1 ){
+			print $oneproject['datapoints'];
+			}else{
+			print "--";
+			}
+		print "</td>";
+
+		print "<td>";
+		if($oneproject['maxeffort'] >1 ){
+			print number_format($oneproject['maxeffort'],2);
+			}else{
+			print "--";
+			}
+		print "</td>";
+
+		print "<td>";
+		if($oneproject['totaldefects'] >1 ){
+			print $oneproject['totaldefects'];
+			}else{
+			print "--";
+			}
+		print "</td>";
+
+		print "<td>";
+			print $oneproject['status'];
+		print "</td>";
+
+		print "<td bgcolor=$bgcolor_results>";
+			print $oneproject['results'];
+		print "</td>";
+
+		print "<td>";
+			if($oneproject['t1'] > 100){
+			print date("n/j/y H:i A",$oneproject['t1']-(3600*4));
+			}else{
+			print "&nbsp;";
+			}
+		print "</td>";
+
+		print "<td>";
+			if($oneproject['t2'] > 100){
+			print date("n/j/y H:i A",$oneproject['t2']-(3600*4));
+			}else{
+			print "&nbsp;";
+			}
+		print "</td>";
+
+		print "<td>";
+			$delta = $oneproject['t2'] - $oneproject['t1'];
+			if($delta>0){
+			print $delta . " sec.";
+			}else{
+			print "&nbsp;";
+			}
+		print "</td>";
+
+
+		print "<td align=right bgcolor=$bgcolor_diim >" . $oneproject['diim'] . "</td>";
+
+		print "<td align=right>";
+			if( $oneproject['im_effort_left']==0 || $oneproject['im_effort_left']==""){
+			     print " ";
+			     }else{
+			     print number_format($oneproject['im_effort_left'],2) ;
+			     }
+		print "</td>";
+
+
+		print "<td bgcolor=$bgcolor_imdefectsleft align=right>" . $oneproject['imdefectsleft'] . "</td>";
+
+		print "<td align=right bgcolor=$bgcolor_dinim >" . $oneproject['dinim'] . "</td>";
+		print "<td align=right>";
+
+		if($oneproject['nim_effort_left']==0 || $oneproject['nim_effort_left']==""){
+			 print "  ";
+			}else{
+			 print number_format($oneproject['nim_effort_left'],2) ;
+			}
+		print "</td>";
+
+		print "<td bgcolor=$bgcolor_nimdefectsleft align=right>" . $oneproject['nimdefectsleft'] . "</td>";
+
+		print "<td>";
+		if($oneproject['status']=="done" ){
+		  print '<a href=phase4.php?projectkey=' . $oneproject['projectkey'] . ' target=_new>PDF charts</a>';
+		  }else{
+		  print '--';
+		  }
+		print "</td>";
+
+
+	print "</tr>";
+	}}
+	print "</table>";
+	print "<br><div class=tablerowtext><a href=showprojects.htm >Show All</a></div>";
+	print '</form>';
+
+
+function getprojectinfo($projectkey,$licensekey){
+	//print "curl init starting ";
+	//print "projectkey= $projectkey ;  licensekey= $licensekey ";
+        $ch = curl_init();
+        //print_r($ch);
+        curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/GetProjectInfo.htm" );
+        curl_setopt($ch,CURLOPT_POST, 1);
+
+	if($licensekey !=""){
+          curl_setopt($ch,CURLOPT_POSTFIELDS, "licensekey=" . $licensekey );
+	  //print "going with licensekey search";
+	}
+
+	if($projectkey !=""){
+          curl_setopt($ch,CURLOPT_POSTFIELDS, "projectkey=" . $projectkey);
+	  //print "going with projectkey search.";
+	}
+
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        //print " curl opts set";
+        // $output contains the output string
+        $response = curl_exec($ch);
+        //print "curl done!";
+        //print $response;
+	$phpdata = parsexml2php($response);
+	return($phpdata);
+}
+
+
+function parsexml2php($data){
+	//print $data;
+	$cleandata = get_string($data,"<response>","</response>");
+	$item_count= get_string($cleandata,"<item_count>","</item_count>");
+	$items= get_string($cleandata,"<items>","</items>");
+	//print "item_count=$item_count";
+
+	$projectlist = explode("<project>",$items);
+	//print_r($projectlist);
+	unset($allrecords);
+
+	if(is_array($projectlist) && $item_count>0){
+	foreach($projectlist as $oneproject){
+          $xmlfragment = $oneproject;
+	  unset($record);
+          $record['projectkey']  = get_string($xmlfragment,"<projectkey>","</projectkey>");
+          $record['results']      = get_string($xmlfragment,"<results>","</results>");
+          $record['status']       = get_string($xmlfragment,"<status>","</status>");
+          $record['modified']       = get_string($xmlfragment,"<modified>","</modified>");
+          $record['filename']       = get_string($xmlfragment,"<filename>","</filename>");
+          $record['teststartdate']       = get_string($xmlfragment,"<teststartdate>","</teststartdate>");
+          $record['projectname']       = get_string($xmlfragment,"<projectname>","</projectname>");
+          $record['datapoints']       = get_string($xmlfragment,"<datapoints>","</datapoints>");
+          $record['maxeffort']       = get_string($xmlfragment,"<maxeffort>","</maxeffort>");
+          $record['diim']       = get_string($xmlfragment,"<diim>","</diim>");
+          $record['dinim']       = get_string($xmlfragment,"<dinim>","</dinim>");
+          $record['im_effort_left']       = get_string($xmlfragment,"<im_effort_left>","</im_effort_left>");
+          $record['nim_effort_left']       = get_string($xmlfragment,"<nim_effort_left>","</nim_effort_left>");
+          $record['imdefectsleft']       = get_string($xmlfragment,"<imdefectsleft>","</imdefectsleft>");
+          $record['nimdefectsleft']       = get_string($xmlfragment,"<nimdefectsleft>","</nimdefectsleft>");
+          $record['t1']       = get_string($xmlfragment,"<t1>","</t1>");
+          $record['t2']       = get_string($xmlfragment,"<t2>","</t2>");
+          $record['totaldefects']       = get_string($xmlfragment,"<totaldefects>","</totaldefects>");
+
+          if($record['projectkey'] !="" ){
+           $allrecords[] = $record;
+           }
+	}//foreach
+	}//item_count>0
+
+	//print_r($allrecords);
+	return($allrecords);
+}
+
+function get_string($h, $s, $e){
+        $sp = strpos($h, $s, 0 ) + strlen($s);
+        $ep = strpos($h, $e, $sp);
+        return substr($h, $sp, $ep - $sp);
+}
+
+?>

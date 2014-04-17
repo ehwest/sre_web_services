@@ -1,0 +1,217 @@
+<?
+// CreateProject.htm
+// This component receives an authenticated userid as a parameter and returns a license key.
+
+// AT&T Public Source License Version 1.1 (6/2013)
+// The Initial Developer of the Original Code is AT&T the Original Code is governed by the AT&T Public Source License.
+// Copyright AT&T 2013. All Rights Reserved.
+
+// This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the
+// AT&T Public Source License Version 1.1 (the 'License').
+
+// You may not use this file except in compliance with the License. Please obtain a copy of the License at
+// http://www.att.developer.com/ and read it before using this file.
+
+// The Original Code and all software distributed under the License are distributed on an 'AS IS' basis,
+// WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+// INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+// QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the
+// specific language governing rights and limitations under the License.
+
+//	
+	//print "In CreateProject.htm";
+	require_once("setup.php");
+        $ipaddress    = $_SERVER["REMOTE_ADDR"];
+        $encoding     = $_REQUEST['encoding'];
+        $projectdata = $_REQUEST['projectdata'];
+	$nowtime = time();
+
+	//Assume xml encoding
+	$php_project_data = xml2php_custom($projectdata);
+	$jsondata = php2json_custom($php_project_data);
+
+	$licensekey = $php_project_data['userid'];
+	$userid     = $php_project_data['userid'];
+
+
+//check the license key
+	if(trim($licensekey) !=""){
+	  $q1 = "SELECT * from users where ";
+	  $q1 .= " licensekey='" . $licensekey . "' ";
+	  $q1 .= " order by modified desc LIMIT 1;";
+	}
+	  //print " q1=  $q1 ";
+
+	  $dbr1 = mysql_query($q1);
+	  $row1 = mysql_fetch_object($dbr1);
+	  $n1   = mysql_num_rows($dbr1);
+	  $userid = $row1->userid;
+	  //print "n1=$n1\n";
+
+//Log the useage
+          $q = "INSERT  into userlog set ";
+          $q .= "pageurl='"  . "CreateProject.htm" . "', ";
+          $q .= "ipaddress='"  . $ipaddress . "', ";
+          $q .= "userid='"  . $userid . "', ";
+          $q .= "licensekey='"  . $licensekey. "', ";
+          $q .= "tod='"  . time() . "'; ";
+          mysql_query($q,$dbLink);
+
+	  if($n1!=1){
+		print "<response>";
+		print "Error -- invalid licensekey! projectdata=$projectdata licensekey=$licensekey ";
+		print "</response>";
+		exit();
+	  }
+
+//Normalize the two different options -- convert to json
+
+
+                $datainput = base64_encode(serialize($jsondata));
+		$nowtime = time();
+
+                $q = "INSERT into sreinfodb set ";
+                $q .= " userid='" . $userid . "',";
+                $q .= " projectname='" . addslashes( $php_project_data['projectname'] ) . "',";
+                $q .= " filename='" . addslashes( $php_project_data['filename'])  . "',";
+                $q .= " teststartdate='" . $php_project_data['teststartdate'] . "',";
+                $q .= " istatus='" . 'data loaded' . "',";
+                $q .= " results='" . 'analysis enqueued' . "',";
+                $q .= " modified='" . $nowtime . "',";
+                $q .= " tod='" . $nowtime . "',";
+                $q .= " t1='" . $nowtime . "',";
+                $q .= " checkparamslen='" . strlen($jsondata) . "',";
+                $q .= " datapoints='" . $php_project_data['datapoints'] . "',";
+                $q .= " maxeffort='" . $php_project_data['maxeffort'] . "',";
+                $q .= " totaldefects='" . $php_project_data['totaldefects'] . "',";
+                $q .= " inputparams='" . base64_encode(serialize($jsondata)) . "';";
+                $dbr = mysql_query($q);
+                $projectid = mysql_insert_id();
+                //fwrite($f1,$json);
+                //fwrite($f1,$q);
+                //fwrite($f1,$ix);
+                //print "q=$q<br>";
+
+                //print $q;
+
+		//print "<response>";
+		//print "<project_key>";
+		//print $projectid . "\n";
+		//print "</project_key>";
+		//print "</response>";
+		exit();
+
+function xml2php_custom($xml){
+	//convert to phpdata
+	$phpstructure = parse_custom_xml($xml);
+	unset($maxeffort);
+	unset($totaldefects);
+	$timeseriesdata = $phpstructure['inputimeseries'];
+	foreach($timeseriesdata as $onerecord){
+		$totaldefects += round($onerecord['defectcount']);
+		if($maxeffort < $onerecord['effort']) $maxeffort = $onerecord['effort'];
+	}
+
+	$phpstructure['datapoints'] = count($timeseriesdata);
+	$phpstructure['maxeffort']  =  $maxeffort;
+	$phpstructure['totaldefects'] =  $totaldefects;
+
+	return($phpstructure);
+}
+
+function php2json_custom($phpstructure){
+	//convert PHPto json
+	//print "converting to json";
+        require_once 'json.php';
+        $json = json_encode($phpstructure);
+	//print $json;
+	return($json);
+}
+
+
+function parse_custom_xml($xml){
+
+$projectxml = get_string($xml,"<sreproject>","</sreproject>");
+$projectxml = $xml;
+//print $projectxml;
+
+$timeseriesraw0 = get_string($projectxml,"<inputimeseries>","</inputimeseries>");
+//print $timeseriesraw0;
+
+$timeseriesraw1 = explode("<datapoint>",$timeseriesraw0);
+//print_r($timeseriesraw1);
+unset($allrecords);
+foreach($timeseriesraw1 as $onetuple){
+	$xmlfragment = $onetuple;
+	$effort = get_string($xmlfragment,"<effort>","</effort>");
+	$defectcount = get_string($xmlfragment,"<defectcount>","</defectcount>");
+	if($effort !="" && $defectcount !=""){
+	  unset($record);
+	  $record['effort'] = $effort;
+	  $record['defectcount'] = $defectcount;
+	  $allrecords[] = $record;
+	}
+}
+$result['inputimeseries'] = $allrecords;
+
+$teststartdate = get_string($projectxml,"<teststartdate>","</teststartdate>");
+$result['teststartdate'] = $teststartdate;
+
+$userid= get_string($projectxml,"<userid>","</userid>");
+$result['userid'] = $userid;
+
+$filename= get_string($projectxml,"<filename>","</filename>");
+$result['filename'] = $filename;
+
+$projectname = get_string($projectxml,"<projectname>","</projectname>");
+$result['projectname'] = $projectname;
+
+$sev1= get_string($projectxml,"<sev1>","</sev1>");
+$sev2= get_string($projectxml,"<sev2>","</sev2>");
+$sev3= get_string($projectxml,"<sev3>","</sev3>");
+$sev4= get_string($projectxml,"<sev4>","</sev4>");
+$sev5= get_string($projectxml,"<sev5>","</sev5>");
+$result['sev1'] = $sev1;
+$result['sev2'] = $sev2;
+$result['sev3'] = $sev3;
+$result['sev4'] = $sev4;
+$result['sev5'] = $sev5;
+
+	return($result);
+}
+
+function json2xml($json){
+  $phpstructure = json_decode($json);
+  $assocarray = (array) $phpstructure;
+  $xml = "<sreproject>\n";
+  foreach($assocarray as $key=>$item){
+	if(is_array($item)){
+		$xml .= "<" . $key .  ">\n";
+		foreach($item as $key2=>$oneitem){
+			$xml .= "<datapoint>\n";
+			$xml .= "<effort>" . $oneitem->effort . "</effort>\n";
+			$xml .= "<defectcount>" . $oneitem->defectcount. "</defectcount>\n";
+			$xml .= "</datapoint>\n";
+		}
+		$xml .= "</" . $key .  ">\n";
+	}else{
+	$xml .= "<" . $key .  ">";
+	$xml .= $item ;
+	$xml .= "</" . $key .  ">\n";
+	}
+}
+	$xml .= "</sreproject>\n";
+	return($xml);
+}
+function get_string($h, $s, $e) // Gets content from haystack between start and end strings
+ {
+    $sp = strpos($h, $s, 0) + strlen($s);
+    if($sp>=strlen($h)) return("");
+    if(strpos($h,$s,0) === false) return("");
+
+    $ep = strpos($h, $e, $sp );
+    return substr($h, $sp, $ep-$sp);
+
+ }
+
+?>

@@ -1,0 +1,183 @@
+.tablerow1 { background-color: #999999 }
+
+.tablestatusrow1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #000000; background-color: #999999; background-position: right}
+.tabletitle { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; font-style: normal; font-weight: bold; color: #FFFFFF; background-color: #999999; background-position: left }
+.tablecolumnheaders { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #333333; background-color: #CCCCCC }
+.tablerowwhite { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; font-weight: normal; color: #000000; background-color: #FFFFFF }
+.tablerowgray { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; font-weight: normal; color: #000000; background-color: E9E9E9 }
+.tablegobox {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: normal; width: 70px}
+.tablegobartext {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; width: 70px}
+.tableprevnext {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold}
+.tablevaluebox { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: normal ; width: 70px}
+.tablesectiondivtext {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; color: #000099; background-color: #FFFFFF}
+.tablevaluetext {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: normal; color: #000000; background-position: right}
+.tablerowtext {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-weight: normal; color: #000000}
+.tablecolumnfooters { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #333333; background-color: #CCCCCC }
+.tablenewlink {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold}
+.tablegobar { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold }
+.tableselectbox {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: normal;
+	background-color: #FFFFFF;
+	border: 1px solid #333333;
+	width: 250px
+}
+.inputtitle {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+}
+.inputtextbox {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #333333;
+	background-color: #FFFFFF;
+	border: 1px solid #666666;
+}
+.inputdropdown {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #666666;
+	background-color: #FFFFFF;
+	width: 240pt;
+	border: 1px solid #666666;
+}
+.reportcolumnheaders {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: normal; color: #FFFFFF; background-color: #C9C9C9
+}
+.reportcolumnfooters {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #000000; background-color: #C9C9C9
+}
+.logintext {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-weight: normal; color: #000000
+}
+.logintextbox {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-weight: normal ; width: 120px
+}
+.loginheader {
+	background-image: url(images/TWIbanner.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+
+}
+.customtextbox {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; background-color: #E6E6FF}
+.tablerowtextreqd {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: normal; color: #FF0000
+
+}
+.newfeatureheader {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color: #000066;
+}
+.newfeaturetext {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: normal;
+	color: #000000;
+}
+.isgroup {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; font-weight: normal; color: #000000; background-color: #FFFFFF
+}
+.issectionttltxt {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: bold;
+	color: #000000;
+	background-color: #E9E9E9;
+}
+.issectionttlval {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: bold;
+	color: #000000;
+	background-color: #E9E9E9;
+	text-decoration: underline;
+}
+.issection {
+font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #000066; background-color: #E5E5E5
+}
+.treemenubg {
+        background-color: #F4F4F4;
+        border-right-width: 1px;
+        border-right-style: solid;
+        border-right-color: #000066;
+}
+.headertitle {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #FFFFFF;
+        background-color: #10087B;
+        font-weight: bold;
+}
+.ccard1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+.ccardstoreID {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #E1C057;
+}
+.topnavoff {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #000000;
+	background-color: #EAEAEA;
+	border: 1px solid #B7CAEE;
+}
+.topnavon {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #FFFFFF;
+	background-color: #3065CD;
+	font-weight: bold;
+}
+.submitbutton {
+	border: 1px solid #000000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #000000;
+	background-position: center;
+}
+.detailbackground {
+	background-color: #E4E4E4;
+}
+.midnavoff {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #000000;
+	background-color: #B7CAEE;
+	border: 1px solid #3065CD;
+}
+.midnavwhite {
+
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #000000;
+	background-color: #FFFFFF;
+	border: 1px solid #B7CAEE;
+}
+.topnavspace {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 6px;
+	color: #FFFFFF;
+	background-color: #FFFFFF;
+	font-weight: bold;
+}
+.inputdropdownvariable {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #333333;
+	background-color: #FFFFFF;
+	border: 1px solid #666666;
+}

@@ -1,0 +1,191 @@
+<?
+// AT&T Public Source License Version 1.1 (6/2013)
+// The Initial Developer of the Original Code is AT&T the Original Code is governed by the AT&T Public Source License. 
+// Copyright AT&T 2013. All Rights Reserved.
+
+// This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the
+// AT&T Public Source License Version 1.1 (the 'License').
+
+// You may not use this file except in compliance with the License. Please obtain a copy of the License at
+// http://www.att.developer.com/ and read it before using this file.
+
+// The Original Code and all software distributed under the License are distributed on an 'AS IS' basis,
+// WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+// INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+// QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the
+// specific language governing rights and limitations under the License.
+//
+//This function is the <form> target of submitspreadsheetgui.htm
+//This function accepts a spreadhseet as a POSTING and creates a json
+//object that is submitted to submitproject_json.htm
+
+	//print "GetProjectInfo.htm";
+        error_reporting(E_PARSE);
+
+//GetProjectList.htm?<user_license_key>
+//This looks up the userid and lists all projects for that userid
+
+	require_once("setup.php");
+
+	//This thing accepts the parsed spreadsheet xml and inserts a project
+
+        $ipaddress = $_SERVER["REMOTE_ADDR"];
+	$licensekey = $_REQUEST['licensekey'];
+	$projectkey = $_REQUEST['projectkey'];
+	print "in GetProjectInfo.htm";
+	print "licensekey=$licensekey";
+	print "projectkey=$projectkey";
+
+//log everything
+	$q0 = "INSERT into userlog set ";
+	$q0 .= " pageurl='" . "GetProjectInfo.htm" . "', ";
+	$q0 .= " licensekey='" . $licensekey  . "', ";
+	$q0 .= " tod='" . time()  . "', ";
+	$q0 .= " ipaddress='" . $ipaddress  . "'; ";
+	mysql_query($q0);
+
+	//print "licensekey=$licensekey";
+
+//A license key translates to a user which selects a number of projects
+	if(trim($licensekey) !=""){
+	   $q1 = "SELECT * from users where licensekey='" . $licensekey . "' order by modified desc LIMIT 1; ";
+	   $dbr1 = mysql_query($q1);
+	   $row1 = mysql_fetch_object($dbr1);
+	   //print_r($row1);
+	   $userid=$row1->userid;
+	   $n1 = mysql_num_rows($dbr1);
+	   //print "n1=$n1";
+	   if($n1!=1) {
+	    print "<response>";
+	    print "<message>";
+	    print "Error - no user id found for licensekey " . $licensekey;
+	    print "</message>";
+	    print "</response>";
+	    exit();
+	   }
+	   $q2 = "SELECT * from sreinfodb WHERE userid='" . $userid . "' order by modified desc;";
+	   //print $q2;
+	} // valid license key
+	//  print $q2;
+
+//A project key selects just one project
+	//print "projectkey= $projectkey";
+	if(trim($projectkey)!=""){
+	  $q2 = "SELECT * from sreinfodb WHERE ix='" . $projectkey. "';";
+	}
+
+	// print "START" . $q2 . "END";
+	if(trim($licensekey)=="" && trim($projectkey)==""){
+	    print "<response>";
+	    print "<message>";
+	    print "Error - no user id found for licensekey " . $licensekey;
+	    print "</message>";
+	    print "</response>";
+	    exit();
+	}
+
+	//print "START" . $q2 . "END";
+	$dbr2 = mysql_query($q2);
+	$n2   = mysql_num_rows($dbr2);
+	print $q2;
+
+
+if($n2==0){
+	    print "<response>";
+	    print "<message>";
+	    print "Error - no records found.";
+	    print "</message>";
+	    print "</response>";
+	    exit();
+}
+
+	//print "<PRE>";
+	print "<response>";
+	print "<item_count>";
+	print $n2;
+	print "</item_count>";
+	print "<items>";
+
+	while($row2 = mysql_fetch_object($dbr2)){
+	  print "<project>";
+
+	  print "<projectkey>";
+	  print $row2->ix;
+	  print "</projectkey>";
+
+	  print "<results>";
+	  print $row2->results;
+	  print "</results>";
+
+	  print "<status>";
+	  print $row2->istatus;
+	  print "</status>";
+
+	  print "<modified>";
+	  print $row2->modified;
+	  print "</modified>";
+
+	  print "<filename>";
+	  print $row2->filename;
+	  print "</filename>";
+
+	  print "<teststartdate>";
+	  print $row2->teststartdate;
+	  print "</teststartdate>";
+
+	  print "<projectname>";
+	  print $row2->projectname;
+	  print "</projectname>";
+
+	  print "<datapoints>";
+	  print $row2->datapoints;
+	  print "</datapoints>";
+
+	  print "<maxeffort>";
+	  print $row2->maxeffort;
+	  print "</maxeffort>";
+
+	  print "<diim>";
+	  print $row2->diim;
+	  print "</diim>";
+
+	  print "<dinim>";
+	  print $row2->dinim;
+	  print "</dinim>";
+
+	  print "<im_effort_left>";
+	  print $row2->im_effort_left;
+	  print "</im_effort_left>";
+
+	  print "<imdefectsleft>";
+	  print $row2->imdefectsleft;
+	  print "</imdefectsleft>";
+
+	  print "<nim_effort_left>";
+	  print $row2->nim_effort_left;
+	  print "</nim_effort_left>";
+
+	  print "<nimdefectsleft>";
+	  print $row2->nimdefectsleft;
+	  print "</nimdefectsleft>";
+
+	  print "<t1>";
+	  print $row2->t1;
+	  print "</t1>";
+
+	  print "<t2>";
+	  print $row2->t2;
+	  print "</t2>";
+
+	  print "<totaldefects>";
+	  print $row2->totaldefects;
+	  print "</totaldefects>";
+
+	  print "</project>";
+
+	}
+	print "</items>";
+	print "</response>";
+	//print "</PRE>";
+	exit();
+?>

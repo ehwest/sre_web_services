@@ -1,0 +1,52 @@
+<?
+// GetUserLicense.htm
+// This component receives an authenticated userid as a parameter and returns a license key.
+
+// AT&T Public Source License Version 1.1 (6/2013)
+// The Initial Developer of the Original Code is AT&T the Original Code is governed by the AT&T Public Source License.
+// Copyright AT&T 2013. All Rights Reserved.
+
+// This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the
+// AT&T Public Source License Version 1.1 (the 'License').
+
+// You may not use this file except in compliance with the License. Please obtain a copy of the License at
+// http://www.att.developer.com/ and read it before using this file.
+
+// The Original Code and all software distributed under the License are distributed on an 'AS IS' basis,
+// WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+// INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+// QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the
+// specific language governing rights and limitations under the License.
+
+//This creates a unique license key -- free to all at this point
+//But there authentic_id cannot be blank
+	$UserIdentity = $_REQUEST['authentic_id'];
+        $ipaddress    = $_SERVER["REMOTE_ADDR"];
+	$licensekey = time() . "_" . "LicenseKey" . "_" . $UserIdentity;
+
+	if(trim($UserIdentity) !=""){
+//Log the useage
+          $q = "INSERT into userlog set ";
+          $q .= "pageurl='"  . "GetUserLicense.htm" . "', ";
+          $q .= "userid='"  . $UserIdentity . "', ";
+          $q .= "ipaddress='"  . $ipaddress . "'; ";
+          $q .= "licensekey='"  . $licensekey. "', ";
+          $q .= "tod='"  . time() . "', ";
+          //print $q;
+          mysql_query($q,$dbLink);
+
+//Provide the User_License_key
+	  print "<response>\n";
+	  print "<user_license_key>\n";
+	  print "$licensekey" . "\n";
+	  print "</user_license_key>\n";
+	  print "</response>\n";
+	  exit();
+
+	}else{
+	  print "<response>\n";
+	  print "error -- authentic_id not provided!" . "\n";
+	  print "</response>\n";
+	  exit();
+	}
+?>
