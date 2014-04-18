@@ -20,8 +20,8 @@
         error_reporting(E_PARSE);
 
         $dbhostname = "localhost";
-        $dblogin= "root";
-        $dbpassword= "";
+        $dblogin= "sre";
+        $dbpassword= "sre";
         $dbname="sre";
 
 

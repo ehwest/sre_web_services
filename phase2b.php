@@ -335,9 +335,11 @@
 		
 		print "\noutputstem is $outputstem\n";
 
-		$sre_script_odc   = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGS\n";
-		//$sre_script_odc  .= "modelSetWD('/home/ew8463/sretempdata/')\n";
-		$sre_script_odc  .= "modelSetWD('/db/tmp/')\n";
+		    //$sre_script_odc   = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGS\n";
+		$sre_script_odc   = "/opt/lampp/bin/OpenBUGS\n";
+		    //$sre_script_odc  .= "modelSetWD('/home/ew8463/sretempdata/')\n";
+		$sre_script_odc  .= "modelSetWD('/opt/lampp/wd')\n";
+
 		$sre_script_odc  .= "modelCheck('SRE_mod.txt')\n";
 		$sre_script_odc  .= "modelData('" .  $filenameprefix . "-SRE_dat1.txt" . "')\n";
 		$sre_script_odc  .= "modelData('" .  $filenameprefix . "-SRE_dat2.txt" . "')\n";
@@ -374,7 +376,8 @@
 		fputs($f6, $sre_script_odc);
 		fclose($f6);
 
-		$cmd = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGSCli < $odc_filename \n";
+		//$cmd = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGSCli < $odc_filename \n";
+		$cmd = "/opt/lampp/bin/OpenBUGSCli < $odc_filename \n";
 		print "Now executing this command:<br>";
 		print "<PRE>";
 		print $cmd;
