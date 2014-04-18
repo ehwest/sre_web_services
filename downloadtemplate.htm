@@ -1,0 +1,15 @@
+<?
+
+	$nowtime = time() - (3600*5);
+	header("Cache-Control: ");  //blank
+	header("Pragma: ");  //blank
+	header("Content-Type:  application/vnd.ms-excel");
+	$nameparts = "sre_template";
+	$nameparts .= "_" . date("YjnHm",$nowtime) ;
+	$nameparts .= ".xlsx";
+	header("Content-Disposition:  attachment; filename=" . $nameparts);
+
+	$localfilename = "sre_template.xlsx";
+	$spreadsheetcontents = file_get_contents($localfilename);
+	print $spreadsheetcontents;
+?>
