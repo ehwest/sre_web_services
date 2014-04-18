@@ -61,7 +61,7 @@
 	$row1 = mysql_fetch_object($dbr1);
 	$json = unserialize(base64_decode($row1->inputparams));
 	$filenameprefix = $row1->tempfilename;
-        $metadata = json_decode($json);
+        $metadata = json_decode_custom($json);
 
 
 	print "<br>filenameprefix=$filenameprefix";

@@ -38,7 +38,7 @@
 	$t1 = $row0->t1;
 
         $json = unserialize(base64_decode($row0->inputparams));
-        $metadata = json_decode($json);
+        $metadata = json_decode_custom($json);
 	
 
 // Expected metadata contents

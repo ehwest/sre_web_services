@@ -48,7 +48,7 @@
 	$orig_user_filename= $row0->filename;
 
         $json = unserialize(base64_decode($row0->inputparams));
-        $metadata = json_decode($json);
+        $metadata = json_decode_custom($json);
 	
 
 // Expected metadata contents

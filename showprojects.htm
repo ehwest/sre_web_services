@@ -24,18 +24,25 @@
         $cookiename="sre_analysis" ;
         $ipaddress = $_SERVER["REMOTE_ADDR"];
 
-        if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
+	if( trim($_REQUEST['userid']) != ""){
+		$userid = $_REQUEST['userid'];
+		$licensekey = $userid;
+		$expiration = $nowtime + (3600*24*365); //365 days
+                setcookie ( $cookiename, $licensekey, $expiration);
+	}else{
+          if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
                 $nowtime = time();
                 $licensekey = $nowtime . "_id_" . $ipaddress;
                 $expiration = $nowtime + (3600*24*365); //365 days
                 setcookie ( $cookiename, $licensekey, $expiration);
                 //print "New Cookie set: $uniqueid <br>";
                 $firstime = 1;
-        }else{
+          }else{
                 $licensekey = $_COOKIE[$cookiename];
                 $firstime = 0;
                 //print "Cookie already set:  $uniqueid<br>";
-        }
+          }
+	}
 
 
 
@@ -71,6 +78,19 @@ Welcome to the Software Readiness Estimation (SRE) Analysis Management Tool
         $cookiename="sre_analysis" ;
         $ipaddress = $_SERVER["REMOTE_ADDR"];
 
+        if( trim($_REQUEST['userid']) != ""){
+                $userid = $_REQUEST['userid'];
+                $licensekey = $userid;
+		$uniqueid = $licensekey;
+                $expiration = $nowtime + (3600*24*365); //365 days
+                setcookie ( $cookiename, $licensekey, $expiration);
+		$q = "INSERT into users set ";
+                $q .= " userid='" . $uniqueid . "', ";
+                $q .= " licensekey='" . $uniqueid . "', ";
+                $q .= " modified='" . time() . "'; ";
+                mysql_query($q,$dbLink);
+        }else{
+
         if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
 		//userid does not exist in browser, create one
                 $nowtime = time();
@@ -96,6 +116,8 @@ Welcome to the Software Readiness Estimation (SRE) Analysis Management Tool
 		$userid = $uniqueid;
 		$licensekey = $uniqueid;
         }
+
+	}
 
 
 //Log the useage
