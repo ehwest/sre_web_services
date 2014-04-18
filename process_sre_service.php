@@ -1,22 +1,7 @@
 <?
         error_reporting(E_PARSE);
 
-        $dbhostname = "localhost";
-        $dblogin= "root";
-        $dbpassword= "";
-        $dbname="sre";
-
-
-        if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
-                {
-                print("Failed to connect to db server.");
-                exit();
-                }
-        if(!mysql_select_db($dbname,$dbLink))
-                {
-                print("Failed to select database.");
-                exit();
-                }
+	include("setup.php");
 
 	$q = "SELECT * from sreinfodb where istatus='data loaded'  AND results='analysis enqueued'";
 	$dbr = mysql_query($q);

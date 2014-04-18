@@ -191,20 +191,21 @@
 	$postfields .= '&encoding=xml';
 	$postfields .= '&licensekey='. $licensekey;
 
+	$host = $_SERVER["HTTP_HOST"]; //ec2-75-101-200-173.compute-1.amazonaws.com
         curl_setopt($ch, CURLOPT_URL, "http://" . $host . "/CreateProject.htm" );
 	curl_setopt($ch,CURLOPT_POSTFIELDS,$postfields);
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
 	//print "postfields=$postfields";
-	//print "xml=$xmlfragment2 . $xmlfragment1";
+	//print "xml=$xmlfragment2" . "$xmlfragment1";
 
         //print " curl opts set";
         // $output contains the output string
         $response = curl_exec($ch);
 	//print "curl done";
         //print $response;
-
+	//exit();
 	 $ix = trim($response);
 
 	//$message = "Your userid=$userid";

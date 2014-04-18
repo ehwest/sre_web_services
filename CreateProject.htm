@@ -21,18 +21,28 @@
 //	
 	//print "In CreateProject.htm";
 	require_once("setup.php");
+
         $ipaddress    = $_SERVER["REMOTE_ADDR"];
         $encoding     = $_REQUEST['encoding'];
         $projectdata = $_REQUEST['projectdata'];
+	$host = $_SERVER["HTTP_HOST"]; //ec2-75-101-200-173.compute-1.amazonaws.com
 	$nowtime = time();
 
+	//print "In CreateProject.htm";
+	//print "ipaddress=$ipaddress;";
+	//print "encoding=$encoding;";
+	//print "projectdata1=$projectdata;";
 	//Assume xml encoding
 	$php_project_data = xml2php_custom($projectdata);
+	//print "php_project_data=";
+	//print_r($php_project_data);
 	$jsondata = php2json_custom($php_project_data);
+	//print "jsondata=$jsondata";
 
 	$licensekey = $php_project_data['userid'];
 	$userid     = $php_project_data['userid'];
 
+	//print "projectdata2=$projectdata;";
 
 //check the license key
 	if(trim($licensekey) !=""){
@@ -96,7 +106,7 @@
 
 		//print "<response>";
 		//print "<project_key>";
-		//print $projectid . "\n";
+		print $projectid . "\n";
 		//print "</project_key>";
 		//print "</response>";
 		exit();
@@ -123,7 +133,7 @@ function php2json_custom($phpstructure){
 	//convert PHPto json
 	//print "converting to json";
         require_once 'json.php';
-        $json = json_encode($phpstructure);
+        $json = json_encode_custom($phpstructure);
 	//print $json;
 	return($json);
 }
@@ -181,7 +191,7 @@ $result['sev5'] = $sev5;
 }
 
 function json2xml($json){
-  $phpstructure = json_decode($json);
+  $phpstructure = json_decode_custom($json);
   $assocarray = (array) $phpstructure;
   $xml = "<sreproject>\n";
   foreach($assocarray as $key=>$item){

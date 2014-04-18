@@ -19,22 +19,7 @@
 
         require_once("uniformdeviates.php");
 
-        $dbhostname = "localhost";
-        $dblogin= "root";
-        $dbpassword= "";
-        $dbname="sre";
-
-
-        if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
-                {
-                print("Failed to connect to db server.");
-                exit();
-                }
-        if(!mysql_select_db($dbname,$dbLink))
-                {
-                print("Failed to select database.");
-                exit();
-                }
+	require_once("setup.php");
 
         if(trim($ix)=="") $ix = $_REQUEST['ix'];
 
@@ -47,7 +32,7 @@
 	//print_r($row0);
 
 	$outputmatrix = unserialize(base64_decode($row0->outputmatrix));
-        $tempfolder = "/db/tmp/";
+        $tempfolder = "/opt/lampp/temp/";
 	$tempfilename = $row0->tempfilename;
 	$filenameprefix = $row0->tempfilename;
 	$t1 = $row0->t1;

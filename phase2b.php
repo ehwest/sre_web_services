@@ -33,22 +33,7 @@
         unset($tol95);
 
 	require("uniformdeviates.php");
-        $dbhostname = "localhost";
-        $dblogin= "root";
-        $dbpassword= "";
-        $dbname="sre";
-
-
-        if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
-                {
-                print("Failed to connect to db server.");
-                exit();
-                }
-        if(!mysql_select_db($dbname,$dbLink))
-                {
-                print("Failed to select database.");
-                exit();
-                }
+	require_once("setup.php");
 
 	if(trim($ix)=="") $ix = $_REQUEST['ix'];
 
@@ -56,7 +41,7 @@
 	print "ix=$ix\n";
 	$nowtime = time();
 	$randomnumber = rand(0,$nowtime);
-	$tempfolder = "/db/tmp/";
+	$tempfolder = "/opt/lampp/temp/";
 	$filenameprefix =   $nowtime . "-" . $randomnumber ;
 
 	$q0 = "update sreinfodb set ";
@@ -338,7 +323,7 @@
 		    //$sre_script_odc   = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGS\n";
 		$sre_script_odc   = "/opt/lampp/bin/OpenBUGS\n";
 		    //$sre_script_odc  .= "modelSetWD('/home/ew8463/sretempdata/')\n";
-		$sre_script_odc  .= "modelSetWD('/opt/lampp/wd')\n";
+		$sre_script_odc  .= "modelSetWD('/opt/lampp/temp/')\n";
 
 		$sre_script_odc  .= "modelCheck('SRE_mod.txt')\n";
 		$sre_script_odc  .= "modelData('" .  $filenameprefix . "-SRE_dat1.txt" . "')\n";
