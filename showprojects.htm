@@ -27,6 +27,7 @@
 	if( trim($_REQUEST['userid']) != ""){
 		$userid = $_REQUEST['userid'];
 		$licensekey = $userid;
+		$uniqueid = $userid;
 		$expiration = $nowtime + (3600*24*365); //365 days
                 setcookie ( $cookiename, $licensekey, $expiration);
 	}else{
