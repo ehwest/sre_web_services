@@ -22,6 +22,8 @@
 
         error_reporting(E_PARSE);
 
+	include("setup.php");
+
 // submitspreadsheet_xml.php
 	//This thing accepts the parsed spreadsheet xml and inserts a project
 
@@ -189,7 +191,7 @@
 	$postfields .= '&encoding=xml';
 	$postfields .= '&licensekey='. $licensekey;
 
-        curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/CreateProject.htm" );
+        curl_setopt($ch, CURLOPT_URL, "http://" . $host . "/CreateProject.htm" );
 	curl_setopt($ch,CURLOPT_POSTFIELDS,$postfields);
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -209,9 +211,9 @@
         $errormessage = curl_error($ch);
 
 	if($ix>0){
-	  $message = "You have successfull inserted a new project.  Project Id= <b>" . $ix . "</b>";
+	  $message = "You have successfully inserted a new project.  Project Id= <b>" . $ix . "</b>";
 	}else{
-	  $message = "You have NOT successfull ineserted a new project.";
+	  $message = "You have NOT successfully ineserted a new project.";
 	}
 
 	//print $message;

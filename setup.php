@@ -24,6 +24,8 @@
         $dbpassword= "sre";
         $dbname="sre";
 
+	$host = $_SERVER["HTTP_HOST"]; //ec2-75-101-200-173.compute-1.amazonaws.com 
+	$documentroot = $DOCUMENT_ROOT; ///opt/lampp/htdocs 
 
         if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
                 {

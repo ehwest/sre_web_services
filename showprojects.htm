@@ -119,7 +119,7 @@ print '<form enctype="multipart/form-data" action="phase1.php" method="POST">';
         //$licensekey = $_GET["licensekey"];
 
 	//$licensekey = "1397507766_LicenseKey_ew8463";
-	$projectlist = getprojectinfo($projectkey,$licensekey);
+	$projectlist = getprojectinfo($projectkey,$licensekey,$host);
 
 	//print_r($projectlist);
 
@@ -409,12 +409,12 @@ print '<form enctype="multipart/form-data" action="phase1.php" method="POST">';
 	print '</form>';
 
 
-function getprojectinfo($projectkey,$licensekey){
+function getprojectinfo($projectkey,$licensekey,$host){
 	//print "curl init starting ";
 	//print "projectkey= $projectkey ;  licensekey= $licensekey ";
         $ch = curl_init();
         //print_r($ch);
-        curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/GetProjectInfo.htm" );
+        curl_setopt($ch, CURLOPT_URL, "http://" . $host . "/GetProjectInfo.htm" );
         curl_setopt($ch,CURLOPT_POST, 1);
 
 	if($licensekey !=""){
