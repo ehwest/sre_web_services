@@ -3,7 +3,7 @@
 
         $dbhostname = "localhost";
         $dblogin= "root";
-        $dbpassword= "";
+        $dbpassword= "root";
         $dbname="sre";
 
 

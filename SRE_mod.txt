@@ -1,0 +1,80 @@
+# // The Initial Developer of the Original Code is AT&T the Original Code is
+# // governed by the AT&T Public Source License. 
+# // Copyright AT&T 2013. All Rights Reserved.
+
+# // This file contains Original Code and/or Modifications of Original Code as
+# // defined in and that are subject to the
+# // AT&T Public Source License Version 1.1 (the 'License').
+
+# // You may not use this file except in compliance with the License. Please
+# // obtain a copy of the License at
+# // http://www.att.developer.com/ and read it before using this file.
+
+# // The Original Code and all software distributed under the License are
+# // distributed on an 'AS IS' basis,
+# // WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY
+# // DISCLAIMS ALL SUCH WARRANTIES,
+# // INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS
+# // FOR A PARTICULAR PURPOSE,
+# // QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source
+# // License Version 1.1 for the
+# // specific language governing rights and limitations under the License.
+#
+#IM SRE
+model {
+for(i in 1:n) {
+x[i]<-y[i]
+z[i]<-y[i]
+
+#Integrated model v1
+x[i] ~ dpois(lam1[i])
+lam1[i]<-(N[1]-(i-1))*(b[1]*b[1]*(i-1)/(1+b[1]*(i-1))+d[1])*tau[i]
+like1[i]<-x[i]*log(lam1[i])-lam1[i]-logfact(x[i])
+
+#Integrated model v2
+y[i] ~ dpois(lam2[i])
+lam2[i]<-(N[2]-(i-1))*(b[2]*(i-1)+d[2])*tau[i]
+like2[i]<-y[i]*log(lam2[i])-lam2[i]-logfact(y[i])
+
+#simple Poisson
+z[i] ~ dpois(lam3[i])
+lam3[i]<-b[3]*tau[i]
+like3[i]<-z[i]*log(lam3[i])-lam3[i]
+}
+
+#basically the priors are non-informative
+#if there are prior information that can be used
+#e.g., rough idea on the number of defects to expect based on fault density estimates
+#then one can change the priors to reflect this information
+#however i'd run once with non-informative then with the informative just to be safe
+ 
+log(b[1])<-lb1
+log(d[1])<-ld1
+lb1~dnorm(-7,.1)
+ld1~dnorm(-7,.1)
+n1<-n-1*(1-step(x[n]-1))
+N[1]~dpois(mu1)I(n1,)
+mu1~dgamma(.1,.1)
+M[1]<-round(N[1])-n1
+LIKE[1]<-sum(like1[])
+
+log(b[2])<-lb2
+log(d[2])<-ld2
+lb2~dnorm(-7,.1)
+ld2~dnorm(-7,.1)
+n2<-n-1*(1-step(y[n]-1))
+N[2]~dpois(mu2)I(n2,)
+mu2~dgamma(.1,.1)
+M[2]<-round(N[2])-n2
+LIKE[2]<-sum(like2[])
+
+log(b[3])<-lb3
+lb3~dnorm(-7,.1)
+LIKE[3]<-sum(like3[])
+
+Deploy[1]<-LIKE[1]-LIKE[3]
+Deploy[2]<-LIKE[2]-LIKE[3]
+Deploy[3]<-LIKE[2]-LIKE[1]
+
+} 
+
