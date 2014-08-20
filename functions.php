@@ -16,11 +16,11 @@
 // QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the
 // specific language governing rights and limitations under the License.
 
-function getprojectinfo($userid,$licensekey){
+function getprojectinfo($userid,$licensekey,$host){
 	//print "curl init starting ";
         $ch = curl_init();
         //print_r($ch);
-        curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/GetProjectInfo.htm" );
+        curl_setopt($ch, CURLOPT_URL, "http://" . $host . "/GetProjectInfo.htm" );
         curl_setopt($ch,CURLOPT_POST, 1);
         curl_setopt($ch,CURLOPT_POSTFIELDS, "user_license_key=" . $licensekey );
 

@@ -16,24 +16,8 @@
 // QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the 
 // specific language governing rights and limitations under the License.
 
-        $dbhostname = "localhost";
-        $dblogin= "root";
-        $dbpassword= "";
-        $dbname="sre";
 
-        error_reporting(E_PARSE);
-
-        if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
-                {
-                print("Failed to connect to db server.");
-                exit();
-                }
-        if(!mysql_select_db($dbname,$dbLink))
-                {
-                print("Failed to select database.");
-                exit();
-                }
-
+	require_once("setup.php");
 	$cookiename="sre_analysis" ;
 	$ipaddress = $_SERVER["REMOTE_ADDR"];
 	$projectkey= $_GET["projectkey"];

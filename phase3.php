@@ -19,6 +19,7 @@
 
         require_once("uniformdeviates.php");
 
+<<<<<<< HEAD
         $dbhostname = "localhost";
         $dblogin= "root";
         $dbpassword= "root";
@@ -35,6 +36,9 @@
                 print("Failed to select database.");
                 exit();
                 }
+=======
+	require_once("setup.php");
+>>>>>>> 9b22ae84e3625350d25458ef6a22933390bdd519
 
         if(trim($ix)=="") $ix = $_REQUEST['ix'];
 
@@ -47,13 +51,13 @@
 	//print_r($row0);
 
 	$outputmatrix = unserialize(base64_decode($row0->outputmatrix));
-        $tempfolder = "/db/tmp/";
+        $tempfolder = "/opt/lampp/temp/";
 	$tempfilename = $row0->tempfilename;
 	$filenameprefix = $row0->tempfilename;
 	$t1 = $row0->t1;
 
         $json = unserialize(base64_decode($row0->inputparams));
-        $metadata = json_decode($json);
+        $metadata = json_decode_custom($json);
 	
 
 // Expected metadata contents

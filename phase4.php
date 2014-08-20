@@ -42,13 +42,13 @@
 	//print_r($row0);
 
 	$outputmatrix = unserialize(base64_decode($row0->outputmatrix));
-        $tempfolder = "/db/tmp/";
+        $tempfolder = "/opt/lampp/temp/";
 	$tempfilename = $row0->tempfilename;
 	$filenameprefix = $row0->tempfilename;
 	$orig_user_filename= $row0->filename;
 
         $json = unserialize(base64_decode($row0->inputparams));
-        $metadata = json_decode($json);
+        $metadata = json_decode_custom($json);
 	
 
 // Expected metadata contents

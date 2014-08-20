@@ -22,6 +22,8 @@
 
         error_reporting(E_PARSE);
 
+	include("setup.php");
+
 // submitspreadsheet_xml.php
 	//This thing accepts the parsed spreadsheet xml and inserts a project
 
@@ -183,6 +185,7 @@
 	$postfields .= '&encoding=xml';
 	$postfields .= '&licensekey='. $licensekey;
 
+<<<<<<< HEAD
 	$debug = 1;
 	if($debug==1){
 		$f1 = fopen("/home/ew8463/sreapi/logfile.txt","a");
@@ -192,33 +195,41 @@
 	}
 
         curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/CreateProject.htm" );
+=======
+	$host = $_SERVER["HTTP_HOST"]; //ec2-75-101-200-173.compute-1.amazonaws.com
+        curl_setopt($ch, CURLOPT_URL, "http://" . $host . "/CreateProject.htm" );
+>>>>>>> 9b22ae84e3625350d25458ef6a22933390bdd519
 	curl_setopt($ch,CURLOPT_POSTFIELDS,$postfields);
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
 	//print "postfields=$postfields";
-	//print "xml=$xmlfragment2 . $xmlfragment1";
+	//print "xml=$xmlfragment2" . "$xmlfragment1";
 
         //print " curl opts set";
         // $output contains the output string
         $response = curl_exec($ch);
 	//print "curl done";
         //print $response;
+<<<<<<< HEAD
 
 	if($debug==1){
 
 		fwrite($f1,"Response:   " . $response . " End of Response");
 	}
 
+=======
+	//exit();
+>>>>>>> 9b22ae84e3625350d25458ef6a22933390bdd519
 	 $ix = trim($response);
 
 	//$message = "Your userid=$userid";
         $errormessage = curl_error($ch);
 
 	if($ix>0){
-	  $message = "You have successfull inserted a new project.  Project Id= <b>" . $ix . "</b>";
+	  $message = "You have successfully inserted a new project.  Project Id= <b>" . $ix . "</b>";
 	}else{
-	  $message = "You have NOT successfull ineserted a new project.";
+	  $message = "You have NOT successfully ineserted a new project.";
 	}
 
 	//print $message;

@@ -31,7 +31,7 @@
 	//print base64_decode($json);
 
 	require_once 'json.php';
-	$phpdecode = json_decode(unserialize(base64_decode($json)));
+	$phpdecode = json_decode_custom(unserialize(base64_decode($json)));
 	//print "<PRE>";
 	//print_r($phpdecode);
 	//print "</PRE>";

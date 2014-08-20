@@ -55,7 +55,7 @@
  * @license     http://www.opensource.org/licenses/bsd-license.php
  * @link        http://pear.php.net/pepr/pepr-proposal-show.php?id=198
  */
-function json_encode($arg)
+function json_encode_custom($arg)
 {
         global $services_json;
         if (!isset($services_json)) {
@@ -64,7 +64,7 @@ function json_encode($arg)
         return $services_json->encode($arg);
 }
 
-function json_decode($arg)
+function json_decode_custom($arg)
 {
         global $services_json;
         if (!isset($services_json)) {

@@ -24,18 +24,26 @@
         $cookiename="sre_analysis" ;
         $ipaddress = $_SERVER["REMOTE_ADDR"];
 
-        if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
+	if( trim($_REQUEST['userid']) != ""){
+		$userid = $_REQUEST['userid'];
+		$licensekey = $userid;
+		$uniqueid = $userid;
+		$expiration = $nowtime + (3600*24*365); //365 days
+                setcookie ( $cookiename, $licensekey, $expiration);
+	}else{
+          if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
                 $nowtime = time();
                 $licensekey = $nowtime . "_id_" . $ipaddress;
                 $expiration = $nowtime + (3600*24*365); //365 days
                 setcookie ( $cookiename, $licensekey, $expiration);
                 //print "New Cookie set: $uniqueid <br>";
                 $firstime = 1;
-        }else{
+          }else{
                 $licensekey = $_COOKIE[$cookiename];
                 $firstime = 0;
                 //print "Cookie already set:  $uniqueid<br>";
-        }
+          }
+	}
 
 
 
@@ -71,6 +79,19 @@ Welcome to the Software Readiness Estimation (SRE) Analysis Management Tool
         $cookiename="sre_analysis" ;
         $ipaddress = $_SERVER["REMOTE_ADDR"];
 
+        if( trim($_REQUEST['userid']) != ""){
+                $userid = $_REQUEST['userid'];
+                $licensekey = $userid;
+		$uniqueid = $licensekey;
+                $expiration = $nowtime + (3600*24*365); //365 days
+                setcookie ( $cookiename, $licensekey, $expiration);
+		$q = "INSERT into users set ";
+                $q .= " userid='" . $uniqueid . "', ";
+                $q .= " licensekey='" . $uniqueid . "', ";
+                $q .= " modified='" . time() . "'; ";
+                mysql_query($q,$dbLink);
+        }else{
+
         if(trim($_COOKIE[$cookiename])==""){ //if no cookie, set one
 		//userid does not exist in browser, create one
                 $nowtime = time();
@@ -97,6 +118,8 @@ Welcome to the Software Readiness Estimation (SRE) Analysis Management Tool
 		$licensekey = $uniqueid;
         }
 
+	}
+
 
 //Log the useage
         $q = "INSERT into userlog set ";
@@ -119,7 +142,7 @@ print '<form enctype="multipart/form-data" action="phase1.php" method="POST">';
         //$licensekey = $_GET["licensekey"];
 
 	//$licensekey = "1397507766_LicenseKey_ew8463";
-	$projectlist = getprojectinfo($projectkey,$licensekey);
+	$projectlist = getprojectinfo($projectkey,$licensekey,$host);
 
 	//print_r($projectlist);
 
@@ -132,9 +155,10 @@ print '<form enctype="multipart/form-data" action="phase1.php" method="POST">';
         }
         print "</td></tr>";
 
-	print "<tr class=tablerowtext><td colspan=8>";
+	print "<tr class=tablerowtext><td colspan=12>";
 	print "Click here to ";
-	print " <a href=submitspreadsheetgui_xml.htm?userid=$uniqueid >submit using API</a>";
+	print " <a href=submitspreadsheetgui_xml.htm?userid=$uniqueid >submit using a GUI that uses the API.</a>";
+	print "  " . "An example of the output is <a href=test_example.pdf target=_new >here.</a>";
 	print "</td></tr>";
 	print "<br><br></td></tr>";
 
@@ -406,15 +430,37 @@ print '<form enctype="multipart/form-data" action="phase1.php" method="POST">';
 	}}
 	print "</table>";
 	print "<br><div class=tablerowtext><a href=showprojects.htm >Show All</a></div>";
+	print "<br><div class=tablerowtext>";
+
+print "<b>AT&T Public Source License Version 1.1 (6/2013)</b><br>";
+
+print "The Initial Developer of the Original Code is AT&T and the Original Code is governed by the AT&T Public Source License.  ";
+print "<b>Copyright AT&T 2013. All Rights Reserved.  </b> ";
+
+print "This file contains Original Code and/or Modifications of Original Code as defined in and that are subject to the ";
+print " AT&T Public Source License Version 1.1 (the 'License'). ";
+
+print "You may not use this file except in compliance with the License. Please obtain a copy of the License at ";
+print "<a href=license.pdf target=_new>http://developer.att.com</a> and read it before using this file.";
+
+print "The Original Code and all software distributed under the License are distributed on an 'AS IS' basis, ";
+print " WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, AND AT&T HEREBY DISCLAIMS ALL SUCH WARRANTIES, ";
+print " INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ";
+print "QUIET ENJOYMENT OR NON-INFRINGEMENT.  Please see the AT&T Public Source License Version 1.1 for the ";
+print "specific language governing rights and limitations under the License.";
+
+print "<br><br>The source code git repository is here:  <a href=https://github.com/ehwest/sre_web_services >https://github.com/ehwest/sre_web_services</a>";
+print "<br><br>Technical Contact:  Earle West ew8463@att.com 732-420-8456";
+	print "</div>";
 	print '</form>';
 
 
-function getprojectinfo($projectkey,$licensekey){
+function getprojectinfo($projectkey,$licensekey,$host){
 	//print "curl init starting ";
 	//print "projectkey= $projectkey ;  licensekey= $licensekey ";
         $ch = curl_init();
         //print_r($ch);
-        curl_setopt($ch, CURLOPT_URL, "http://sidmoqrpt.dev.att.com/sreapi/GetProjectInfo.htm" );
+        curl_setopt($ch, CURLOPT_URL, "http://" . $host . "/GetProjectInfo.htm" );
         curl_setopt($ch,CURLOPT_POST, 1);
 
 	if($licensekey !=""){

@@ -20,10 +20,17 @@
         error_reporting(E_PARSE);
 
         $dbhostname = "localhost";
+<<<<<<< HEAD
         $dblogin= "root";
         $dbpassword= "root";
+=======
+        $dblogin= "sre";
+        $dbpassword= "sre";
+>>>>>>> 9b22ae84e3625350d25458ef6a22933390bdd519
         $dbname="sre";
 
+	$host = $_SERVER["HTTP_HOST"]; //ec2-75-101-200-173.compute-1.amazonaws.com 
+	$documentroot = $DOCUMENT_ROOT; ///opt/lampp/htdocs 
 
         if(!($dbLink = mysql_connect($dbhostname,$dblogin,$dbpassword)))
                 {

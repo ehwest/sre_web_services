@@ -1,6 +1,7 @@
 <?
         error_reporting(E_PARSE);
 
+<<<<<<< HEAD
         $dbhostname = "localhost";
         $dblogin= "root";
         $dbpassword= "root";
@@ -17,6 +18,9 @@
                 print("Failed to select database.");
                 exit();
                 }
+=======
+	include("setup.php");
+>>>>>>> 9b22ae84e3625350d25458ef6a22933390bdd519
 
 	$q = "SELECT * from sreinfodb where istatus='data loaded'  AND results='analysis enqueued'";
 	$dbr = mysql_query($q);

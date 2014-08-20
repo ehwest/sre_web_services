@@ -33,6 +33,7 @@
         unset($tol95);
 
 	require("uniformdeviates.php");
+<<<<<<< HEAD
         $dbhostname = "localhost";
         $dblogin= "root";
         $dbpassword= "root";
@@ -49,6 +50,9 @@
                 print("Failed to select database.");
                 exit();
                 }
+=======
+	require_once("setup.php");
+>>>>>>> 9b22ae84e3625350d25458ef6a22933390bdd519
 
 	if(trim($ix)=="") $ix = $_REQUEST['ix'];
 
@@ -56,7 +60,7 @@
 	print "ix=$ix\n";
 	$nowtime = time();
 	$randomnumber = rand(0,$nowtime);
-	$tempfolder = "/db/tmp/";
+	$tempfolder = "/opt/lampp/temp/";
 	$filenameprefix =   $nowtime . "-" . $randomnumber ;
 
 	$q0 = "update sreinfodb set ";
@@ -76,7 +80,7 @@
 	$row1 = mysql_fetch_object($dbr1);
 	$json = unserialize(base64_decode($row1->inputparams));
 	$filenameprefix = $row1->tempfilename;
-        $metadata = json_decode($json);
+        $metadata = json_decode_custom($json);
 
 
 	print "<br>filenameprefix=$filenameprefix";
@@ -335,9 +339,11 @@
 		
 		print "\noutputstem is $outputstem\n";
 
-		$sre_script_odc   = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGS\n";
-		//$sre_script_odc  .= "modelSetWD('/home/ew8463/sretempdata/')\n";
-		$sre_script_odc  .= "modelSetWD('/db/tmp/')\n";
+		    //$sre_script_odc   = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGS\n";
+		$sre_script_odc   = "/opt/lampp/bin/OpenBUGS\n";
+		    //$sre_script_odc  .= "modelSetWD('/home/ew8463/sretempdata/')\n";
+		$sre_script_odc  .= "modelSetWD('/opt/lampp/temp/')\n";
+
 		$sre_script_odc  .= "modelCheck('SRE_mod.txt')\n";
 		$sre_script_odc  .= "modelData('" .  $filenameprefix . "-SRE_dat1.txt" . "')\n";
 		$sre_script_odc  .= "modelData('" .  $filenameprefix . "-SRE_dat2.txt" . "')\n";
@@ -374,7 +380,8 @@
 		fputs($f6, $sre_script_odc);
 		fclose($f6);
 
-		$cmd = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGSCli < $odc_filename \n";
+		//$cmd = "/home/ew8463/sre/openbugs/usr/bin/OpenBUGSCli < $odc_filename \n";
+		$cmd = "/opt/lampp/bin/OpenBUGSCli < $odc_filename \n";
 		print "Now executing this command:<br>";
 		print "<PRE>";
 		print $cmd;
